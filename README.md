@@ -5,7 +5,7 @@ Tool for fitting analytical PDFs.
 
     source setup.sh
     
-    root -l -q RooTwoSidedCBShape.cxx+ (first time only)
+    root -l -q RooTwoSidedCBShape/RooTwoSidedCBShape.cxx+ (first time only)
   
 ## How to run the code
 

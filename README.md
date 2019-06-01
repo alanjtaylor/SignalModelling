@@ -12,7 +12,7 @@ Tool for fitting analytical PDFs.
 The skimFiles.py script skims MxAODs into small ntuples using RDataFrame. The usage is:
 
 ```
-python skimFiles.py -p HH -c mc16a -d
+python skimFiles.py -p HH -c mc16a
 ```
 
 where p is the process to be run over and c is the MC campaign. The above is an example (HH and mc16a). All files are listed in `files.yaml`. Additional samples can be easily added. The selections used to skim the MxAOD is specified in `files.yaml` and can be easily modified. It is essential to have a "categorisation variable" in the MxAODs.  

@@ -32,7 +32,7 @@ To fit the PDFs:
     
     python SignalModel.py -p HH -c mc16a -v myy -f DSCB
 
-where p is the process (can also be allProc or ZHMerge), c is the MC campaign (can also be total where all campaigns are merged together), v is the variable to be fitted (only myy or mjj for now) and f is the PDF to be used (DSCB, Bukin, Chebychev and Exponential for now). 
+where p is the process (can also be allProc or ZHMerge), c is the MC campaign (can also be total where all campaigns are merged together), v is the variable to be fitted (only myy or mjj for now) and f is the PDF to be used (DSCB, Bukin, Chebychev and Exponential for now). There is also the `recommendedModels.sh` script that will fit a recommended PDF for each process and variable.  
 
 The output will create a folder `fitOutputs`. Here, a .png of each fit is produced, a .txt file which has the fitted PDFs written out and a .root file which contains a RooWorkspace with the fitted PDFs. 
 

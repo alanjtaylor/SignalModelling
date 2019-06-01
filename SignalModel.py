@@ -27,13 +27,13 @@ gROOT.SetBatch(kTRUE)
 parser = argparse.ArgumentParser()
 
 ## take in the name of the process and the MC campaign
-parser.add_argument('-n', '--name', action='store', required=True, help='Give name of sample (eg HH or can be allProc for all processes merged)')
+parser.add_argument('-p', '--process', action='store', required=True, help='Give name of process (eg HH or can be allProc for all processes merged)')
 parser.add_argument('-c', '--campaign', action='store', required=True, help='Give the MC campaign (eg mc16a or can be total)')
 parser.add_argument('-v', '--variable', action='store', required=True, help='Give the variable to be fitted (eg myy or mjj)')
 parser.add_argument('-f', '--function', action='store', required=True, help='Give the functional form, options include: DSCB, Chebychev, Exponential')
 args = parser.parse_args()
 
-listOfFunctions = [ "DSCB", "Bukin", "Chebychev", "Exponential", "Polynomial"]
+listOfFunctions = [ "DSCB", "Bukin", "Chebychev", "Exponential"]
 
 if args.function not in listOfFunctions:
     sys.exit('Exiting, function specified is not in the list of functions specified...')
@@ -63,27 +63,23 @@ if args.variable == "mjj":
     apdf = "RooTwoSidedCBShape::cb_C{0}("+args.variable+", muCB_C{0}[117,0.1,10000], sigmaCB_C{0}[18.0,0.01,200.0], alphaCBLo_C{0}[1.5,0.1,2.5], nCBLo_C{0}[9.0,0.1, 100.0], alphaCBHi_C{0}[2.2,0.1,3.0], nCBHi_C{0}[5.0, 0.1, 1000.0])"
     pdfname = "cb"
 
-    if args.function == "Bukin" and args.name == "HH":
+    if args.function == "Bukin":
         ## suggested set up is to fix rho1
         apdf = "RooBukinPdf::bukin_C{0}("+args.variable+", peak_C{0}[125.0,50.0,200.0], width_C{0}[12.0,2.0,30.0], asymm_C{0}[1e-04,-1.0e+06,+1.0e+06],rho1_C{0}[-1e-05], rho2_C{0}[-1e-05,-1e+06,+1e+06])"
         pdfname = "bukin"
 
-    if args.function == "Bukin" and (args.name == "ZH" or args.name == "ggZH" or args.name == "ZHMerge"):
+    if args.function == "Bukin" and (args.process == "ZH" or args.process == "ggZH" or args.process == "ZHMerge"):
         ## suggested set up is to fix rho1
         apdf = "RooBukinPdf::bukin_C{0}("+args.variable+", peak_C{0}[85.0,50.0,200.0], width_C{0}[12.0,2.0,30.0], asymm_C{0}[1e-04,-1.0e+06,+1.0e+06],rho1_C{0}[-1e-05], rho2_C{0}[-1e-05,-1e+06,+1e+06])"
         pdfname = "bukin"
 
-    if args.function == "DSCB" and (args.name == "ZH" or args.name == "ggZH" or args.name == "ZHMerge"):
+    if args.function == "DSCB" and (args.process == "ZH" or args.process == "ggZH" or args.process == "ZHMerge"):
         apdf = "RooTwoSidedCBShape::cb_C{0}("+args.variable+", muCB_C{0}[80.0,70.0,130.0], sigmaCB_C{0}[20.0,0.01,200.0], alphaCBLo_C{0}[0.35], nCBLo_C{0}[9.0], alphaCBHi_C{0}[2.2,0.1,5.0], nCBHi_C{0}[5.0, 0.1, 1000.0])"
         pdfname = "cb"
         
     if args.function == "Chebychev":
-        apdf = "Chebychev::cheb_C{0}("+args.variable+",{{a0_C{0}[0.0,-30.0,+30.0],a1_C{0}[0.0,-30.0,+30.0],a2_C{0}[0.0,-30.0,+30.0]}})"
+        apdf = "Chebychev::cheb_C{0}("+args.variable+",{{a0_C{0}[-0.44,-30.0,+30.0],a1_C{0}[-0.12,-30.0,+30.0],a2_C{0}[0.04,-30.0,+30.0]}})"
         pdfname = "cheb"
-
-    if args.function == "Polynomial":
-        apdf = "Polynomial::poly_C{0}("+args.variable+",{{a0_C{0}[0.025,-30.0,+30.0],a1_C{0}[0.0,-30.0,+30.0],a2_C{0}[0.0,-30.0,+30.0]}})"
-        pdfname = "poly"
 
     if args.function == "Exponential":
         apdf = "Exponential::expo_C{0}("+args.variable+",a0_C{0}[0.0,-30.0,+30.0])"
@@ -92,7 +88,7 @@ if args.variable == "mjj":
 ROOT.gStyle.SetPalette(1)
 chain = TChain("CollectionTree")
 
-inputFile = "skimmedFiles/"+args.name+"_"+args.campaign+".root"
+inputFile = "skimmedFiles/"+args.process+"_"+args.campaign+".root"
 chain.Add(inputFile)
 
 afile = TFile(inputFile)
@@ -123,7 +119,7 @@ for j in range(minCatVal, maxCatVal+1):
 
 
 ## keep a text file which has the final fit models
-outputFile = open("fitOutputs/"+args.name+"_" + args.campaign + "_" + args.variable +"_fitModels.txt","w")
+outputFile = open("fitOutputs/"+args.process+"_" + args.campaign + "_" + args.variable + "_" + args.function + "_fitModels.txt","w")
     
 
 # loop over the datasets
@@ -192,7 +188,7 @@ for idx,data in enumerate(dataList):
         latex.DrawLatex(0.7, 0.85 - 0.25, n_CBLo)
         latex.DrawLatex(0.7, 0.85 - 0.30, n_CBHi)
         latex.DrawLatex(0.7, 0.85 - 0.35, eventYield)
-        latex.DrawLatex(0.7, 0.85 - 0.40, args.name)
+        latex.DrawLatex(0.7, 0.85 - 0.40, args.process)
         latex.DrawLatex(0.7, 0.85 - 0.45, "C"+str(idy))
 
     if args.function == "Bukin":
@@ -216,7 +212,7 @@ for idx,data in enumerate(dataList):
         latex.DrawLatex(0.7, 0.85 - 0.20, rhoOne)
         latex.DrawLatex(0.7, 0.85 - 0.25, rhoTwo)
         latex.DrawLatex(0.7, 0.85 - 0.30, eventYield)
-        latex.DrawLatex(0.7, 0.85 - 0.34, args.name)
+        latex.DrawLatex(0.7, 0.85 - 0.34, args.process)
         latex.DrawLatex(0.7, 0.85 - 0.40, "C"+str(idy))
 
 
@@ -232,7 +228,7 @@ for idx,data in enumerate(dataList):
         latex.DrawLatex(0.7, 0.85 - 0.05, a0)
         latex.DrawLatex(0.7, 0.85 - 0.10, a1)
         latex.DrawLatex(0.7, 0.85 - 0.15, a2)
-        latex.DrawLatex(0.7, 0.85 - 0.20, args.name)
+        latex.DrawLatex(0.7, 0.85 - 0.20, args.process)
         latex.DrawLatex(0.7, 0.85 - 0.25, "C"+str(idy))
 
     if args.function == "Exponential":
@@ -241,7 +237,7 @@ for idx,data in enumerate(dataList):
         
         a0 = "a_{0} =" + a0Val + "#pm" + format( combWS.var("a0_C"+str(idy)).getError() , '.2f')
         latex.DrawLatex(0.7, 0.85 - 0.15, a0)
-        latex.DrawLatex(0.7, 0.85 - 0.20, args.name)
+        latex.DrawLatex(0.7, 0.85 - 0.20, args.process)
         latex.DrawLatex(0.7, 0.85 - 0.25, "C"+str(idy))
         
     
@@ -315,7 +311,7 @@ for idx,data in enumerate(dataList):
         i_m += increment
 
     result.Draw("EPSAME")
-    outputName = args.name+"_"+args.variable+"_"+args.campaign+"_"+"c"+str(idy)+".png"
+    outputName = args.process+"_"+args.variable+"_"+args.campaign+"_"+args.function+"_"+"c"+str(idy)+".png"
 
     c1.SaveAs("fitOutputs/"+outputName)
 
@@ -327,19 +323,24 @@ for idx,data in enumerate(dataList):
 
     if args.function == "DSCB":
 
-        strPDF = '"RooTwoSidedCBShape::'+args.name+'_cb_'+args.variable+'_C'+str(idy)+'('+args.variable+','+ args.name + '_muCB_C'+str(idy)+'['+mu_CBVal+'],'+ args.name + '_sigmaCB_C'+str(idy)+'['+sigma_CBVal+'],'
-        strPDF += args.name + '_alphaCBLo_C'+str(idy)+'['+alpha_CBLoVal+'], ' + args.name + '_nCBLo_C'+str(idy)+'['+n_CBLoVal+'], ' + args.name + '_alphaCBHi_C'+str(idy)+'['+alpha_CBHiVal+'], ' + args.name + '_nCBHi_C'+str(idy)+'['+n_CBHiVal+'])"'
+        strPDF = '"RooTwoSidedCBShape::'+args.process+'_cb_'+args.variable+'_C'+str(idy)+'('+args.variable+','+ args.process + '_muCB_C'+str(idy)+'['+mu_CBVal+'],'+ args.process + '_sigmaCB_C'+str(idy)+'['+sigma_CBVal+'],'
+        strPDF += args.process + '_alphaCBLo_C'+str(idy)+'['+alpha_CBLoVal+'], ' + args.process + '_nCBLo_C'+str(idy)+'['+n_CBLoVal+'], ' + args.process + '_alphaCBHi_C'+str(idy)+'['+alpha_CBHiVal+'], ' + args.process + '_nCBHi_C'+str(idy)+'['+n_CBHiVal+'])"'
 
     if args.function == "Chebychev":
-        strPDF = '"Chebychev::'+args.name+'_cheb_'+args.variable+'_C'+str(idy)+'('+args.variable+','+'a0_C'+str(idy)+'['+a0Val+'],'+'a1_C'+str(idy)+'['+a1Val+'],'+'a2_C'+str(idy)+'['+ a2Val +'])"'
+        strPDF = '"Chebychev::'+args.process+'_cheb_'+args.variable+'_C'+str(idy)+'('+args.variable+','+'a0_C'+str(idy)+'['+a0Val+'],'+'a1_C'+str(idy)+'['+a1Val+'],'+'a2_C'+str(idy)+'['+ a2Val +'])"'
 
     if args.function == "Exponential":
-        strPDF = '"Exponential::' + args.name + '_expo_' + args.variable + '_C' + str(idy) + '(' + args.variable +',a0_C'+str(idy)+'['+a0Val+'])"'
+        strPDF = '"Exponential::' + args.process + '_expo_' + args.variable + '_C' + str(idy) + '(' + args.variable +',a0_C'+str(idy)+'['+a0Val+'])"'
+
+    if args.function == "Bukin":
+
+        strPDF = '"RooBukinPdf::'+args.process+'_ukin_'+args.variable+'_C'+str(idy)+'('+args.variable+','+ args.process + '_peak_C'+str(idy)+'['+xpVal+'],'+ args.process + '_width_C'+str(idy)+'['+widthVal+'],'        
+        strPDF += args.process + '_asymm_C'+str(idy)+'['+asymmVal+'], ' + args.process + '_rho1_C'+str(idy)+'['+rhoOneVal+'], ' + args.process + '_rho2_C'+str(idy)+'['+rhoTwoVal+'])"'
 
     outputFile.write(strPDF+"\n")
     
     del h_myy
     del medianHist
 
-combWS.writeToFile("fitOutputs/"+args.name+"_" + args.campaign + "_" + args.variable +"_WS.root",True)
+combWS.writeToFile("fitOutputs/"+args.process+"_" + args.campaign + "_" + args.variable + "_"+ args.function + "_WS.root",True)
 outputFile.close()

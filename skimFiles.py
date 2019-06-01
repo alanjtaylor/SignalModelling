@@ -6,14 +6,13 @@ from optparse import OptionParser, OptionGroup, OptionValueError
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-s', '--sample', action='store', required=True, help='Give name of sample (eg ttH)')
+parser.add_argument('-p', '--process', action='store', required=True, help='Give name of process (eg ttH)')
 parser.add_argument('-c', '--campaign', action='store', required=True, help='Give the MC campaign (eg mc16a)')
-parser.add_argument('-p', '--prefix', action='store', required=True, help='Decide which prefix to add')
 args = parser.parse_args()
 
-print 'Creating RDF for sample ', args.sample, ' and for MC campaign ' , args.campaign
+print 'Creating RDF for process ', args.process, ' and for MC campaign ' , args.campaign
 
-configFile = yaml.safe_load(open('test.yaml'))
+configFile = yaml.safe_load(open('files.yaml'))
 
 treeName = "CollectionTree"
 
@@ -21,12 +20,13 @@ treeName = "CollectionTree"
 
 lumi = configFile[args.campaign+"_lumi"]
 
-fileName = configFile["Files"][args.sample][args.campaign]
+fileName = configFile["Files"][args.process][args.campaign]
 
-if args.prefix == "1":
+# at present, the HH and the single Higgs processs are kept at different directories due to the HH signal processes being bugged on the HGam EOS space 
+if args.process != "HH":
     fileName = configFile["EOSPrefix"] + args.campaign + "/Nominal/" + fileName
     
-histoName = configFile["Files"][args.sample]["histogram"]
+histoName = configFile["Files"][args.process]["histogram"]
 
 ## get histogram from file for normalisation
 
@@ -50,7 +50,7 @@ if not os.path.exists("skimmedFiles"):
     print 'making skimmedFiles directory...'
     os.makedirs("skimmedFiles")
 
-outFileName = "skimmedFiles/"+args.sample+"_"+args.campaign+".root"
+outFileName = "skimmedFiles/"+args.process+"_"+args.campaign+".root"
 branchList = ROOT.vector('string')()
 
 for j in configFile["Variables"]:

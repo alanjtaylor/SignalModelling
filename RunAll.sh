@@ -1,18 +1,17 @@
 #!/bin/bash
 # write out HH files separately - this is due to the HH files on the HGam EOS space being bugged.
 echo 'Opted to skim all the HH + single Higgs files.. this takes about 10mins'
-python skimFiles.py -s HH -c mc16a -p 0
-python skimFiles.py -s HH -c mc16d -p 0
-python skimFiles.py -s HH -c mc16e -p 0
-
+python skimFiles.py -p HH -c mc16a
+python skimFiles.py -p HH -c mc16d
+python skimFiles.py -p HH -c mc16e
 hadd skimmedFiles/HH_total.root skimmedFiles/HH_mc16?.root
 
-for sample in ggH VBF WpH WmH ZH ggZH ttH bbH tWH tHjb; do
+for process in ggH VBF WpH WmH ZH ggZH ttH bbH tWH tHjb; do
     for mc in a d e; do 
-	python skimFiles.py -s ${sample} -c mc16${mc} -p 1
+	python skimFiles.py -p ${process} -c mc16${mc}
     done
     # for each process, merge the MC campaigns together
-    hadd skimmedFiles/${sample}_total.root skimmedFiles/${sample}_mc16?.root
+    hadd skimmedFiles/${process}_total.root skimmedFiles/${process}_mc16?.root
 done
 # create a file with all samples merged together
 echo 'Create file allProc_total.root with all processes and MC campaigns merged together' 

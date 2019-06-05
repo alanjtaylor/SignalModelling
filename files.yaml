@@ -6,7 +6,7 @@ mc16e_lumi: 58450.1
 
 # add in some analysis cuts, here we use a categorisation variable and require the diphoton selection
 
-Cuts: HGamEventInfoAuxDyn.yybb_nonResLooseMjj_cutBased_discreteMV2c10pT_Cat > 0 && HGamEventInfoAuxDyn.isPassed == 1
+Cuts: HGamEventInfoAuxDyn.yybb_nonResLooseMjj_cutBased_discreteMV2c10pT_Cat > 0 && HGamEventInfoAuxDyn.isPassed == 1 && HGamEventInfoAuxDyn.yybb_discreteMV2c10pT_m_jj >= 80.0
 
 # code writes out exactly four variables to an ntuple. 
 # could be extended using a for loop with the Define function with RDF and then add in more variables below. 

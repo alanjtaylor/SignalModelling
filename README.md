@@ -34,5 +34,11 @@ To fit the PDFs:
 
 where p is the process (can also be allProc or ZHMerge), c is the MC campaign (can also be total where all campaigns are merged together), v is the variable to be fitted (only myy or mjj for now) and f is the PDF to be used (DSCB, Bukin, Chebychev and Exponential for now). There is also the `recommendedModels.sh` script that will fit a recommended PDF for each process and variable.  
 
-The output will create a folder `fitOutputs`. Here, a .png of each fit is produced, a .txt file which has the fitted PDFs written out and a .root file which contains a RooWorkspace with the fitted PDFs. 
+The output will create a folder `fitOutputs`. Here, a .png of each fit is produced, a .txt file which has the fitted PDFs written out and a .root file which contains a RooWorkspace with the fitted PDFs.
+
+Once the fits have been performed it is possible to check if the product of the 1D PDFs can model the full 2D PDF. The residual 2D histograms can be plotted with
+
+    python getResidual2D.py -p_mjj HH -p_myy allProc -f DSCB
+
+where p_mjj is the process used for the di-jet mass fit and p_myy is the process(es) for the diphoton mass fit. The function used for the di-jet mass fit must also be specified with -f. The residuals for the recommended models can be run with the getAllResiduals2D.sh script. 
 

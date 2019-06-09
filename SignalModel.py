@@ -327,7 +327,7 @@ for idx,data in enumerate(dataList):
         strPDF += args.process + '_alphaCBLo_C'+str(idy)+'['+alpha_CBLoVal+'], ' + args.process + '_nCBLo_C'+str(idy)+'['+n_CBLoVal+'], ' + args.process + '_alphaCBHi_C'+str(idy)+'['+alpha_CBHiVal+'], ' + args.process + '_nCBHi_C'+str(idy)+'['+n_CBHiVal+'])"'
 
     if args.function == "Chebychev":
-        strPDF = '"Chebychev::'+args.process+'_cheb_'+args.variable+'_C'+str(idy)+'('+args.variable+','+'a0_C'+str(idy)+'['+a0Val+'],'+'a1_C'+str(idy)+'['+a1Val+'],'+'a2_C'+str(idy)+'['+ a2Val +'])"'
+        strPDF = '"Chebychev::'+args.process+'_cheb_'+args.variable+'_C'+str(idy)+'('+args.variable+','+'{a0_C'+str(idy)+'['+a0Val+'],'+'a1_C'+str(idy)+'['+a1Val+'],'+'a2_C'+str(idy)+'['+ a2Val +']})"'
 
     if args.function == "Exponential":
         strPDF = '"Exponential::' + args.process + '_expo_' + args.variable + '_C' + str(idy) + '(' + args.variable +',a0_C'+str(idy)+'['+a0Val+'])"'

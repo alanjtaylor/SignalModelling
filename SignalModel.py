@@ -1,18 +1,15 @@
 import ROOT
-from ROOT import *
-from array import array
-import math
 from optparse import OptionParser, OptionGroup, OptionValueError
 import argparse
 import os
 import sys
 
-RF = RooFit
+RF = ROOT.RooFit
 
-gROOT.LoadMacro("/afs/cern.ch/work/a/altaylor/public/ATLASStyle/AtlasStyle.C")
-gROOT.LoadMacro("/afs/cern.ch/work/a/altaylor/public/ATLASStyle/AtlasLabels.C")
-gROOT.LoadMacro("/afs/cern.ch/work/a/altaylor/public/ATLASStyle/AtlasUtils.C")
-gSystem.Load('RooTwoSidedCBShape/RooTwoSidedCBShape_cxx')
+ROOT.gROOT.LoadMacro("/afs/cern.ch/work/a/altaylor/public/ATLASStyle/AtlasStyle.C")
+ROOT.gROOT.LoadMacro("/afs/cern.ch/work/a/altaylor/public/ATLASStyle/AtlasLabels.C")
+ROOT.gROOT.LoadMacro("/afs/cern.ch/work/a/altaylor/public/ATLASStyle/AtlasUtils.C")
+ROOT.gSystem.Load('RooTwoSidedCBShape/RooTwoSidedCBShape_cxx')
 
 from ROOT import RooTwoSidedCBShape
 
@@ -21,8 +18,8 @@ if not os.path.exists("fitOutputs"):
     os.makedirs("fitOutputs")
 
 
-SetAtlasStyle()
-gROOT.SetBatch(kTRUE)
+ROOT.SetAtlasStyle()
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 parser = argparse.ArgumentParser()
 
@@ -86,35 +83,35 @@ if args.variable == "mjj":
         pdfname = "expo"
 
 ROOT.gStyle.SetPalette(1)
-chain = TChain("CollectionTree")
+chain = ROOT.TChain("CollectionTree")
 
 inputFile = "skimmedFiles/"+args.process+"_"+args.campaign+".root"
 chain.Add(inputFile)
 
-afile = TFile(inputFile)
+afile = ROOT.TFile(inputFile)
 atree = afile.Get("CollectionTree")
 
-m_yy = RooRealVar(args.variable, args.variable, myy_min, myy_max)
+m_yy = ROOT.RooRealVar(args.variable, args.variable, myy_min, myy_max)
 
 weight_var_str = "weight"
-weight_var = RooRealVar(weight_var_str, weight_var_str, -1000.0, 1000.0)
+weight_var = ROOT.RooRealVar(weight_var_str, weight_var_str, -1000.0, 1000.0)
 cat_var_str = "catVariable"
-cat_var = RooRealVar(cat_var_str, cat_var_str, -1000, 1000)
+cat_var = ROOT.RooRealVar(cat_var_str, cat_var_str, -1000, 1000)
 
 ## find the min / max values of the categorisation variable
 maxCatVal = int(chain.GetMaximum("catVariable"))
 minCatVal = int(chain.GetMinimum("catVariable"))
 
-varset = RooArgSet(m_yy, weight_var, cat_var)
+varset = ROOT.RooArgSet(m_yy, weight_var, cat_var)
 
 # create workspace to hold the PDFs in
-combWS = RooWorkspace("combWS","combWS")
-getattr(combWS, 'import')(varset, RooCmdArg())
+combWS = ROOT.RooWorkspace("combWS","combWS")
+getattr(combWS, 'import')(varset, ROOT.RooCmdArg())
 
 # create list of RooDataSets
 dataList = [ ]
 for j in range(minCatVal, maxCatVal+1):
-    dataset = RooDataSet("data_C"+str(j),"data_C"+str(j), varset, RF.Import(chain), RF.WeightVar(weight_var), RF.Cut("catVariable == " + str(j)))
+    dataset = ROOT.RooDataSet("data_C"+str(j),"data_C"+str(j), varset, RF.Import(chain), RF.WeightVar(weight_var), RF.Cut("catVariable == " + str(j)))
     dataList.append(dataset)
 
 
@@ -130,7 +127,7 @@ for idx,data in enumerate(dataList):
     fitResult = combWS.pdf(pdfname+"_C"+str(idy)).fitTo(data,RF.Save(), RF.SumW2Error(True), RF.Range(myy_min, myy_max), RF.Minimizer("Minuit2", "migrad"))
 
     ## create simple histogram --> necessary for the ratio plot
-    h_myy = TH1F("h_myy", "h_myy", n_bins, myy_min, myy_max )
+    h_myy = ROOT.TH1F("h_myy", "h_myy", n_bins, myy_min, myy_max )
     h_myy.Sumw2()
     var = args.variable
     sel = "(catVariable == " + str(idy)+")*weight"
@@ -139,9 +136,9 @@ for idx,data in enumerate(dataList):
 
     ## cosmetics 
     frame = combWS.var(args.variable).frame(myy_min , myy_max , n_bins )
-    c1 = TCanvas("can", "can", 800, 800)
-    pad1 = TPad( "pad1", "pad1", 0.00, 0.33, 1.00, 1.00 )
-    pad2 = TPad( "pad2", "pad2", 0.00, 0.00, 1.00, 0.33 )
+    c1 = ROOT.TCanvas("can", "can", 800, 800)
+    pad1 = ROOT.TPad( "pad1", "pad1", 0.00, 0.33, 1.00, 1.00 )
+    pad2 = ROOT.TPad( "pad2", "pad2", 0.00, 0.00, 1.00, 0.33 )
     pad1.SetBottomMargin(0.00001)
     pad1.SetBorderMode(0)
     pad2.SetTopMargin(0.00001)
@@ -153,15 +150,15 @@ for idx,data in enumerate(dataList):
     pad1.cd()
 
     data.plotOn(frame)
-    combWS.pdf(pdfname+"_C"+str(idy)).plotOn(frame, RF.LineColor(kRed) )
+    combWS.pdf(pdfname+"_C"+str(idy)).plotOn(frame, RF.LineColor(ROOT.kRed) )
     frame.Draw()
 
     frame.SetMinimum(0.0)
     frame.GetYaxis().SetTitle(y_axis_str)
 
-    latex = TLatex()
+    latex = ROOT.TLatex()
     latex.SetNDC()
-    latex.SetTextColor(kBlack)
+    latex.SetTextColor(ROOT.kBlack)
     latex.SetTextSize(0.04)
     eventYield = "Yield =" + format( h_myy.Integral() , '.2f')
 
@@ -242,12 +239,12 @@ for idx,data in enumerate(dataList):
         
     
     pad2.cd()
-    medianHist = TH1F("median", "median", n_bins, myy_min, myy_max );
+    medianHist = ROOT.TH1F("median", "median", n_bins, myy_min, myy_max );
 
     for x in range(1,n_bins+1):
         medianHist.SetBinContent(x,1.0)
 
-    medianHist.SetLineColor(kRed)
+    medianHist.SetLineColor(ROOT.kRed)
     medianHist.SetLineWidth(2)
     medianHist.GetXaxis().SetTitle(x_axis_str)
     medianHist.GetYaxis().SetTitle("MC / Fit")
@@ -264,7 +261,7 @@ for idx,data in enumerate(dataList):
     line = ROOT.TLine()
     line.SetLineStyle(1)
     line.SetLineWidth(2)
-    line.SetLineColor(kRed)
+    line.SetLineColor(ROOT.kRed)
     line.SetLineWidth(1)
     line.SetLineStyle(2)
 
@@ -278,13 +275,12 @@ for idx,data in enumerate(dataList):
     result = ROOT.TGraphErrors()
     increment = ( myy_max - myy_min ) / n_bins 
     combWS.var(args.variable).setRange("fullRange", myy_min, myy_max) 
-
-    int_tot = combWS.pdf(pdfname + "_C"+str(idy)).createIntegral(  ROOT.RooArgSet( combWS.var(args.variable) ), RooFit.NormSet( ROOT.RooArgSet( combWS.var(args.variable) ) ), RooFit.Range("fullRange")  )
+    int_tot = combWS.pdf(pdfname + "_C"+str(idy)).createIntegral(  ROOT.RooArgSet( combWS.var(args.variable) ), RF.NormSet( ROOT.RooArgSet( combWS.var(args.variable) ) ), RF.Range("fullRange")  )
     val_tot = int_tot.getVal()
     pointIndex = 0
     pointIndexNonZero = 0
     
-    result = TGraphErrors()
+    result = ROOT.TGraphErrors()
     i_m = myy_min
 
     chi2Prob = 0.0
@@ -294,7 +290,7 @@ for idx,data in enumerate(dataList):
 
         combWS.var(args.variable).setRange("range_"+ str(i_m), i_m, ( i_m + increment ) )
 
-        int_curr = combWS.pdf(pdfname+"_C"+str(idy)).createIntegral( ROOT.RooArgSet( combWS.var(args.variable) ), RooFit.NormSet( ROOT.RooArgSet( combWS.var(args.variable) ) ), RooFit.Range("range_"+ str(i_m))  )
+        int_curr = combWS.pdf(pdfname+"_C"+str(idy)).createIntegral( ROOT.RooArgSet( combWS.var(args.variable) ), RF.NormSet( ROOT.RooArgSet( combWS.var(args.variable) ) ), RF.Range("range_"+ str(i_m))  )
 
         val_curr = int_curr.getVal()
         currMass = i_m + 0.5*increment

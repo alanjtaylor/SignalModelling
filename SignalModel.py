@@ -282,9 +282,6 @@ for idx,data in enumerate(dataList):
     
     result = ROOT.TGraphErrors()
     i_m = myy_min
-
-    chi2Prob = 0.0
-    nDofs = 0
     
     while i_m < myy_max:
 
